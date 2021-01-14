@@ -84,6 +84,7 @@ func Long2V4(ip uint32) string {
 	b = append(b, '.')
 	b = appendByte(b, byte(ip))
 
+	/* #nosec G103 */
 	return *(*string)(unsafe.Pointer(&b))
 }
 
