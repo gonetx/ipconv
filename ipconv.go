@@ -18,8 +18,12 @@ package ipconv
 
 import (
 	"fmt"
+	"strconv"
 	"unsafe"
 )
+
+// Version of current package
+const Version = "0.1.1"
 
 type ipv4Error struct {
 	ip string
@@ -72,35 +76,26 @@ func SafeV42Long(ip string) (long uint32, err error) {
 	return long | n, nil
 }
 
+var n2s [256]string
+
+func init() {
+	for i := 0; i < 256; i++ {
+		n2s[i] = strconv.Itoa(i)
+	}
+}
+
 // Long2V4 convert an uint32 integer to ipv4 string
 func Long2V4(ip uint32) string {
 	b := make([]byte, 0, 15)
 
-	b = appendByte(b, byte(ip>>24))
+	b = append(b, n2s[byte(ip>>24)]...)
 	b = append(b, '.')
-	b = appendByte(b, byte(ip>>16))
+	b = append(b, n2s[byte(ip>>16)]...)
 	b = append(b, '.')
-	b = appendByte(b, byte(ip>>8))
+	b = append(b, n2s[byte(ip>>8)]...)
 	b = append(b, '.')
-	b = appendByte(b, byte(ip))
+	b = append(b, n2s[byte(ip)]...)
 
 	/* #nosec G103 */
 	return *(*string)(unsafe.Pointer(&b))
-}
-
-func appendByte(dst []byte, n byte) []byte {
-	switch {
-	case n < 10:
-		return append(dst, n+'0')
-	case n < 100:
-		dst = append(dst, n/10+'0')
-		n = n % 10
-		return append(dst, n+'0')
-	default:
-		dst = append(dst, n/100+'0')
-		n = n % 100
-		dst = append(dst, n/10+'0')
-		n = n % 10
-		return append(dst, n+'0')
-	}
 }
